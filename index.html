@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HALLOWEEKEND — Manila Halloween Festival</title>
+<style>
+:root{--bg:#0B0B10;--card:#171720;--or:#FF7518;--pu:#38204D;--red:#B52637;--iv:#F5EFE6;--gr:#AAA7B3}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#38204D 0,#0B0B10 60%) fixed;color:var(--iv);font:16px/1.5 Georgia,serif}
+h1,h2,h3,.logo{font-family:Impact,'Arial Narrow',sans-serif;letter-spacing:1px;font-weight:400;margin:.3em 0}
+h1{font-size:clamp(2.2rem,7vw,4.5rem);color:var(--or);text-shadow:0 0 25px #ff751866}
+a{color:var(--or)}header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 16px;background:#0b0b10ee;position:sticky;top:0;z-index:5;border-bottom:1px solid var(--pu)}
+.logo{color:var(--or);font-size:1.4rem}nav a{color:var(--iv);text-decoration:none;margin:0 8px;font:14px sans-serif}nav a:hover,nav a.on{color:var(--or)}
+main{max-width:1000px;margin:auto;padding:16px}.card{background:var(--card);border:1px solid #2c2c3a;border-radius:10px;padding:16px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+button,.btn{background:var(--or);color:#0B0B10;border:0;border-radius:6px;padding:10px 16px;font:bold 14px sans-serif;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}
+button.s,.btn.s{background:none;border:1px solid var(--or);color:var(--or)}button.d{background:var(--red);color:#fff}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #fff;outline-offset:2px}
+label{display:block;margin:10px 0 3px;font:14px sans-serif;color:var(--gr)}input,select,textarea{width:100%;padding:9px;background:#0B0B10;color:var(--iv);border:1px solid #444;border-radius:6px;font:15px sans-serif}
+input[type=checkbox],input[type=radio]{width:auto;margin-right:6px}.chk{display:flex;align-items:flex-start;margin:8px 0;font:14px sans-serif;color:var(--iv)}
+.warn{background:#3a1d12;border:1px solid var(--or);padding:8px 12px;border-radius:6px;font:13px sans-serif;margin:8px 0}.err{color:#ff7b8a;font:14px sans-serif;margin:6px 0}
+.tag{font:12px sans-serif;padding:2px 8px;border-radius:10px;background:var(--pu)}.ok{color:#6fdc8c}.bad{color:#ff7b8a}
+table{width:100%;border-collapse:collapse;font:13px sans-serif}th,td{padding:6px;border-bottom:1px solid #2c2c3a;text-align:left}.sc{overflow-x:auto}
+.hero{text-align:center;padding:50px 10px}#cd{font:bold 1.6rem sans-serif;color:var(--iv);margin:12px}
+.steps{display:flex;gap:6px;margin-bottom:10px}.steps i{flex:1;height:5px;background:#333;border-radius:3px}.steps i.on{background:var(--or)}
+.big{font:bold 1.3rem sans-serif;padding:14px;border-radius:8px;text-align:center;margin:10px 0}
+.tk{border:2px dashed var(--or);background:#12101a;border-radius:12px;padding:16px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:10px 0}.tk .q{background:#fff;padding:8px;border-radius:6px}
+.bar{background:#2c2c3a;height:14px;border-radius:7px;overflow:hidden}.bar b{display:block;height:100%;background:var(--or)}
+footer{text-align:center;color:var(--gr);font:12px sans-serif;padding:20px}
+@media print{header,footer,.np{display:none}body{background:#fff}.tk{color:#000}}
+@media(prefers-reduced-motion:no-preference){.card{transition:border-color .2s}.card:hover{border-color:var(--or)}}
+</style></head><body>
+<header><span class="logo">🎃 HALLOWEEKEND</span><nav id="nav"></nav></header>
+<main id="app"></main>
+<footer>HALLOWEEKEND — Manila Halloween Festival · SAMPLE DEMO DATA. Venue, dates and prices are unconfirmed. Data is stored only in this browser (localStorage). No real payments or emails.</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),K='hwk_demo_v1',DAYS=['2026-10-30','2026-10-31','2026-11-01'];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const peso=n=>'₱'+Number(n).toLocaleString();
+const dl=d=>new Date(d+'T12:00:00+08:00').toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric'});
+const tok=()=>[...crypto.getRandomValues(new Uint8Array(8))].map(b=>b.toString(36).padStart(2,'0')).join('').toUpperCase();
+function seed(){const D={ver:'1.0',minAge:18,open:true,
+types:[{id:'day',name:'DAY PASS',price:299,per:1,days:'one',stock:200,desc:'Admission for one selected event day (12:00–6:00 PM sessions).'},
+{id:'night',name:'NIGHT PASS',price:399,per:1,days:'one',stock:200,desc:'Admission to one selected night session (6:00 PM onward).'},
+{id:'wk',name:'WEEKEND PASS',price:799,per:1,days:'all',stock:100,desc:'Admission on all 3 days. Activities with separate reservations must still be reserved.'},
+{id:'squad',name:'SQUAD PASS',price:1699,per:5,days:'all',stock:50,desc:'Package of 5 weekend tickets for a group.'}],
+acts:[{id:'a1',name:'Haunted House Experience',day:DAYS[0],s:'19:00',e:'20:30',cap:40,fee:150,zone:'Zone A',desc:'Walk-through horror attraction.'},
+{id:'a2',name:'Halloween Costume Runway',day:DAYS[1],s:'19:00',e:'20:00',cap:60,fee:0,zone:'Main Stage',desc:'Show off your costume.'},
+{id:'a3',name:'Pumpkin Carving Workshop',day:DAYS[1],s:'14:00',e:'15:30',cap:25,fee:100,zone:'Zone C',desc:'Supplies provided.'},
+{id:'a4',name:'Horror Movie Lounge',day:DAYS[0],s:'20:00',e:'22:00',cap:50,fee:0,zone:'Lounge',desc:'Classic scares on a big screen.'},
+{id:'a5',name:'Best Costume Competition',day:DAYS[2],s:'18:00',e:'19:30',cap:80,fee:0,zone:'Main Stage',desc:'Judged finale.'},
+{id:'a6',name:'Halloween Dance Party',day:DAYS[2],s:'20:00',e:'23:00',cap:150,fee:0,zone:'Main Stage',desc:'DJs and dancing.'}],
+regs:[],ann:[{t:'Sample announcement',d:'Registration is open (demo). Venue to be announced.'}],n:0};
+[['Maria Santos','maria@example.com','day',0,1,1],['Jose Reyes','jose@example.com','wk',null,2,1],['Ana Cruz','ana@example.com','squad',null,1,0],['Leo Tan','leo@example.com','night',1,1,0]]
+.forEach(r=>mk(D,{name:r[0],email:r[1],phone:'09171234567',tid:r[2],day:r[3]==null?null:DAYS[r[3]],qty:r[4],acts:r[2]=='wk'?['a4']:[],costume:r[0]=='Ana Cruz'?'Mananggal':'',cat:'Filipino Folklore and Supernatural'},r[5]));return D}
+function pplOf(D,tid,qty){return D.types.find(t=>t.id==tid).per*qty}
+function mk(D,r,checked){D.n++;const t=D.types.find(x=>x.id==r.tid),n=t.per*r.qty;
+const reg={ref:'HWK-2026-'+String(D.n).padStart(4,'0'),...r,date:new Date().toISOString(),status:'confirmed',pay:'PENDING (demo, unverified)',pv:D.ver,
+tix:Array.from({length:n},(_,i)=>({id:'T'+D.n+'-'+(i+1),token:tok(),st:'valid',in:(checked&&i==0)?new Date().toISOString():null}))};
+D.regs.push(reg);return reg}
+let D;try{D=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!D){D=seed();save()}
+function save(){localStorage.setItem(K,JSON.stringify(D))}
+const issued=id=>D.regs.filter(r=>r.tid==id&&r.status!='cancelled').reduce((a,r)=>a+r.tix.length,0);
+const left=t=>t.stock-issued(t.id);
+const seats=id=>D.regs.filter(r=>r.status!='cancelled'&&r.acts.includes(id)).reduce((a,r)=>a+r.tix.length,0);
+const tdays=r=>{const t=D.types.find(x=>x.id==r.tid);return t.days=='all'?DAYS:[r.day]};
+const role=()=>sessionStorage.getItem('hwkrole');
+/* ---------- router ---------- */
+const PAGES={home,about:home,activities,tickets,rules,register,lookup,admin,checkin};
+function go(){const p=(location.hash.slice(1)||'home').split('?')[0];const f=PAGES[PAGES[p]?p:'home'];
+$('#nav').innerHTML=['home','activities','tickets','rules','register','lookup','checkin','admin'].map(x=>`<a href="#${x}" class="${x==p?'on':''}">${x=='lookup'?'my ticket':x=='checkin'?'staff check-in':x}</a>`).join('');
+$('#app').innerHTML=f();if(window.after){after();after=null}window.scrollTo(0,0)}
+addEventListener('hashchange',go);
+/* ---------- public pages ---------- */
+function home(){after=()=>{tick();};return `<section class="hero"><span class="tag">SAMPLE EVENT INFO — NOT CONFIRMED</span>
+<h1>YOUR WEEKEND JUST GOT HAUNTED.</h1><p>Step into a Halloween experience filled with costumes, thrills, games, unforgettable moments, and a little mystery.</p>
+<p><b>Oct 30 – Nov 1, 2026</b> · Manila, Philippines · Venue: To Be Announced<br>Registration: <b class="${D.open?'ok':'bad'}">${D.open?'OPEN':'CLOSED'}</b></p><div id="cd"></div>
+<a class="btn" href="#register">REGISTER NOW</a><a class="btn s" href="#activities">EXPLORE THE EVENT</a><p><i>One Weekend. Endless Frights. Unforgettable Nights.</i></p></section>
+<div class="card"><h2>About HALLOWEEKEND</h2><p>A premium Halloween weekend in Manila: costumes, a haunted house, games, music, photo spots and a costume competition. Register online, get a QR ticket, and show it at the gate.</p></div>
+<h2>Announcements</h2>${D.ann.map(a=>`<div class="card"><b>${esc(a.t)}</b><br>${esc(a.d)}</div>`).join('')}
+<h2>Frequently Asked</h2><div class="card"><b>How do I get in?</b> Register, keep your QR ticket, present it at the entrance; staff scan it and may do bag checks.</div>
+<div class="card"><b>Is payment collected here?</b> No. This demo shows payment as PENDING and never marks it paid.</div>
+<div class="card"><b>Contact:</b> HALLOWEEKEND Events Team (demo organization) — no real contact details yet.</div>`}
+function tick(){const el=$('#cd');if(!el)return;const s=new Date('2026-10-30T18:00:00+08:00'),e=new Date('2026-11-01T23:00:00+08:00'),n=new Date();
+if(n<s){let d=Math.floor((s-n)/1e3);el.textContent=`${Math.floor(d/86400)}d ${Math.floor(d%86400/3600)}h ${Math.floor(d%3600/60)}m ${d%60}s until opening`}
+else el.textContent=n<e?'The festival is LIVE!':'The event has ended.';setTimeout(tick,1000)}
+function activities(){return `<h1>Event Activities</h1>${DAYS.map(d=>`<h2>${dl(d)}</h2><div class="grid">${D.acts.filter(a=>a.day==d).sort((a,b)=>a.s>b.s?1:-1).map(a=>`<div class="card"><h3>${esc(a.name)}</h3><p>${esc(a.desc)}</p>
+<span class="tag">${a.s}–${a.e}</span> <span class="tag">${esc(a.zone)}</span> <span class="tag">${a.fee?peso(a.fee)+'/person':'Free'}</span><p>Seats left: <b>${a.cap-seats(a.id)}</b> / ${a.cap} · Age ${D.minAge}+</p></div>`).join('')||'<p>No activities.</p>'}</div>`).join('')}`}
+function tickets(){return `<h1>Tickets &amp; Passes</h1><p class="warn">Sample prices — editable by the administrator.</p><div class="grid">${D.types.map(t=>`<div class="card"><h2>${esc(t.name)}</h2><h3>${peso(t.price)}</h3><p>${esc(t.desc)}</p><p>Admits: ${t.per}${t.days=='all'?' · all 3 days':' · one chosen day'}<br>Left: <b>${left(t)>0?left(t):'SOLD OUT'}</b></p>${left(t)>0&&D.open?`<a class="btn" href="#register" onclick="R.tid='${t.id}'">Choose</a>`:''}</div>`).join('')}</div>`}
+function rules(){const L=a=>'<ul>'+a.map(x=>`<li>${x}</li>`).join('')+'</ul>';return `<h1>Event Rules</h1><p class="tag">Policy version ${D.ver}</p><p class="warn">Proposed event policy — not a statement of all applicable Philippine laws. Subject to venue rules and final organizer approval.</p>
+<div class="card"><h2 class="ok">ALLOWED</h2>${L(['Valid digital or printed ticket','Mobile phones, small personal bags within venue limits','Personal medication (original packaging) and accessibility equipment','Costumes that follow the safety guidelines; lightweight non-sharp accessories','Small power banks, reusable water bottle (if venue allows)','Phone/camera for personal photos (privacy rules apply)'])}</div>
+<div class="card"><h2 style="color:var(--or)">ALLOWED WITH CONDITIONS</h2>${L(['Masks — may need removal for identity checks','Foam/plastic costume weapons — only if approved, non-sharp, clearly fake','Wings, large headpieces, capes — size and crowd-safety limits','Face paint/makeup — venue safety rules apply','Food and outside water — only if venue and organizer allow','Special props for the costume contest — submit for approval first'])}</div>
+<div class="card"><h2 class="bad">STRICTLY PROHIBITED</h2>${L(['Real firearms, ammunition, and realistic replica guns','Sharp knives, swords, or any dangerous blade','Explosives, firecrackers, fireworks, smoke bombs','Open flames, candles, torches','Illegal drugs; alcohol where prohibited','Hazardous chemicals, dangerous projectiles, unauthorized lasers','Drones without written authorization','Items that block exits or threaten, harass or intimidate others'])}</div>
+<div class="card"><h2>Entry Inspection</h2><ol><li>Show your ticket.</li><li>Staff scan the QR or look up your reference.</li><li>ID may be requested for age rules.</li><li>Security may check bags — a QR scan does not replace safety checks.</li><li>Prohibited items are handled by venue security procedure.</li><li>You are checked in and directed to your zone.</li></ol></div>
+<div class="card"><h2>Code of Conduct</h2>${L(['Respect attendees, staff, performers and volunteers','No harassment, discrimination, fighting or unwanted contact','Follow staff instructions; stay out of restricted areas','Do not block exits; do not damage property','Respect privacy and photo rules; no unsafe stunts','Report hazards to staff'])}</div>
+<div class="card"><h2>Exit</h2><p>Leave through marked exits and keep your belongings. Official updates will be posted under Announcements. No emergency numbers or transport services are listed because none are confirmed.</p></div>`}
+/* ---------- registration ---------- */
+let R={step:1,tid:'day',day:DAYS[0],qty:1,acts:[],err:''};
+const eligible=r=>D.acts.filter(a=>tdays(r).includes(a.day));
+const total=()=>{const t=D.types.find(x=>x.id==R.tid),p=t.per*R.qty;return{p,tk:t.price*R.qty,ac:R.acts.reduce((a,i)=>a+D.acts.find(x=>x.id==i).fee*p,0)}};
+function register(){if(!D.open)return '<div class="card">Registration is currently closed.</div>';
+const t=D.types.find(x=>x.id==R.tid),S=R.step;
+let h=`<h1>Register</h1><div class="steps">${[1,2,3,4,5].map(i=>`<i class="${i<=S?'on':''}"></i>`).join('')}</div><div class="card">`;
+if(S==1)h+=`<h2>1. Read the essentials</h2><ul><li>Dates: Oct 30–Nov 1, 2026 (sample). Venue: TBA.</li><li>Age ${D.minAge}+ only. ID may be checked.</li><li>Prohibited: weapons, pyrotechnics, open flames, drugs, drones. <a href="#rules">Full rules</a></li><li>Refunds: not defined yet in this demo — the organizer must publish a policy.</li><li>Privacy: we collect only name, email, phone for registration, kept in this browser (demo).</li></ul><button onclick="nx(2)">I've read this — continue</button>`;
+if(S==2)h+=`<h2>2. Your details</h2><label for="n">Full name</label><input id="n" value="${esc(R.name)}" oninput="R.name=this.value"><label for="e">Email</label><input id="e" type="email" value="${esc(R.email)}" oninput="R.email=this.value">
+<label for="p">Contact number (09XXXXXXXXX or +639XXXXXXXXX)</label><input id="p" value="${esc(R.phone)}" oninput="R.phone=this.value"><label for="a">Age</label><input id="a" type="number" value="${esc(R.age)}" oninput="R.age=this.value">
+<div class="chk"><input type="checkbox" id="ok18" ${R.ok18?'checked':''} onchange="R.ok18=this.checked"><label for="ok18" style="margin:0;color:var(--iv)">I confirm I am ${D.minAge} or older.</label></div><button class="s" onclick="R.step=1;go2()">Back</button><button onclick="nx(3)">Continue</button>`;
+if(S==3)h+=`<h2>3. Choose a ticket</h2>${D.types.map(x=>`<div class="chk"><input type="radio" name="tt" id="t_${x.id}" ${R.tid==x.id?'checked':''} ${left(x)<=0?'disabled':''} onchange="R.tid='${x.id}';R.acts=[];go2()"><label for="t_${x.id}" style="margin:0;color:var(--iv)"><b>${x.name}</b> ${peso(x.price)} — ${esc(x.desc)} ${left(x)<=0?'<b class=bad>SOLD OUT</b>':'(left: '+left(x)+')'}</label></div>`).join('')}
+${t.days=='one'?`<label for="d">Event day</label><select id="d" onchange="R.day=this.value;R.acts=[]">${DAYS.map(d=>`<option value="${d}" ${R.day==d?'selected':''}>${dl(d)}</option>`).join('')}</select>`:''}
+<label for="q">Quantity (${t.per>1?'packs of '+t.per:'tickets'}, max 10)</label><input id="q" type="number" min="1" max="10" value="${R.qty}" oninput="R.qty=+this.value"><br><button class="s" onclick="R.step=2;go2()">Back</button><button onclick="nx(4)">Continue</button>`;
+if(S==4)h+=`<h2>4. Activities &amp; costume (optional)</h2>${eligible(R).map(a=>`<div class="chk"><input type="checkbox" id="x_${a.id}" ${R.acts.includes(a.id)?'checked':''} onchange="tog('${a.id}',this)"><label for="x_${a.id}" style="margin:0;color:var(--iv)"><b>${esc(a.name)}</b> ${dl(a.day)} ${a.s}–${a.e} · ${a.fee?peso(a.fee)+'/person':'Free'} · seats left ${a.cap-seats(a.id)}</label></div>`).join('')}
+<label for="cn">Costume name</label><input id="cn" value="${esc(R.costume)}" oninput="R.costume=this.value"><label for="cc">Costume category</label><select id="cc" onchange="R.cat=this.value">${['','Classic Horror','Filipino Folklore and Supernatural','Gothic Elegance','Pop Culture','Original Creation','Group Costume'].map(c=>`<option ${R.cat==c?'selected':''}>${c}</option>`).join('')}</select><p class="warn">Costume props must follow the safety rules.</p><button class="s" onclick="R.step=3;go2()">Back</button><button onclick="nx(5)">Review</button>`;
+if(S==5){const c=total();h+=`<h2>5. Review &amp; consent</h2><p><b>${esc(R.name)}</b> · ${esc(R.email)} · ${esc(R.phone)}</p><p>${t.name} × ${R.qty} (${c.p} ticket${c.p>1?'s':''}) ${t.days=='one'?'· '+dl(R.day):'· all days'}: ${peso(c.tk)}</p>
+<p>Activities: ${R.acts.map(i=>esc(D.acts.find(a=>a.id==i).name)).join(', ')||'none'}${c.ac?' — '+peso(c.ac):''}</p><h3>Total: ${peso(c.tk+c.ac)}</h3><p class="warn">Payment status will be PENDING — no payment is collected or verified in this demo.</p>
+<div class="chk"><input type="checkbox" id="c1" ${R.rules?'checked':''} onchange="R.rules=this.checked"><label for="c1" style="margin:0;color:var(--iv)">I acknowledge the Event Rules (v${D.ver}) and the cancellation policy. <a href="#rules" target="_blank">Read</a></label></div>
+<div class="chk"><input type="checkbox" id="c2" ${R.priv?'checked':''} onchange="R.priv=this.checked"><label for="c2" style="margin:0;color:var(--iv)">I accept the privacy notice.</label></div>
+<div class="chk"><input type="checkbox" id="c3" ${R.mkt?'checked':''} onchange="R.mkt=this.checked"><label for="c3" style="margin:0;color:var(--iv)">(Optional) Send me event news.</label></div><button class="s" onclick="R.step=4;go2()">Back</button><button id="sub" onclick="submit()">Confirm registration</button>`}
+return h+`<div class="err" id="err" role="alert">${esc(R.err)}</div></div>`}
+function go2(){R.err='';$('#app').innerHTML=register()}
+function tog(id,el){const a=D.acts.find(x=>x.id==id);if(el.checked){const c=R.acts.map(i=>D.acts.find(x=>x.id==i)).find(b=>b.day==a.day&&b.s<a.e&&a.s<b.e);if(c){el.checked=false;return $('#err').textContent='Overlaps with "'+c.name+'".'}R.acts.push(id)}else R.acts=R.acts.filter(i=>i!=id);$('#err').textContent=''}
+function nx(s){const t=D.types.find(x=>x.id==R.tid);let e='';
+if(s==3){if(!R.name||R.name.trim().length<2)e='Enter your full name.';else if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(R.email||''))e='Enter a valid email.';else if(!/^(09\d{9}|\+639\d{9})$/.test((R.phone||'').replace(/[\s-]/g,'')))e='Phone must be 09XXXXXXXXX or +639XXXXXXXXX.';else if(!R.ok18||+R.age<D.minAge)e='Attendees must be '+D.minAge+' or older.'}
+if(s==4){R.qty=Math.floor(R.qty);if(!(R.qty>=1&&R.qty<=10))e='Quantity must be 1–10.';else if(t.per*R.qty>left(t))e='Only '+left(t)+' tickets left for '+t.name+'.'}
+if(e){R.err=e;return $('#err').textContent=e}R.step=s;go2()}
+function submit(){if(R.busy)return;if(!R.rules||!R.priv)return $('#err').textContent='Please acknowledge the rules and privacy notice.';R.busy=1;
+const t=D.types.find(x=>x.id==R.tid),p=t.per*R.qty;let e='';
+if(p>left(t))e='Sorry, tickets just sold out.';
+R.acts.forEach(i=>{const a=D.acts.find(x=>x.id==i);if(a.cap-seats(i)<p)e='Not enough seats left for '+a.name+'.'});
+if(D.regs.some(r=>r.status!='cancelled'&&r.email.toLowerCase()==R.email.toLowerCase()&&r.tid==R.tid&&r.day==(t.days=='one'?R.day:null)))e='This email already has a registration for this ticket.';
+if(e){R.busy=0;return $('#err').textContent=e}
+const r=mk(D,{name:R.name.trim(),email:R.email.trim(),phone:R.phone.replace(/[\s-]/g,''),tid:R.tid,day:t.days=='one'?R.day:null,qty:R.qty,acts:[...R.acts],costume:R.costume||'',cat:R.cat||'',mkt:!!R.mkt});
+save();const ref=r.ref;R={step:1,tid:'day',day:DAYS[0],qty:1,acts:[],err:''};after=()=>drawQR();
+$('#app').innerHTML=`<div class="card"><h1>Registration received</h1><p>Reference: <b>${ref}</b> · Status: confirmed · Payment: PENDING (demo — nothing was charged). No email was sent. Save or print your tickets and keep your email for lookup.</p></div>`+tickHTML(r);drawQR()}
+function tickHTML(r){const t=D.types.find(x=>x.id==r.tid);return `<button class="np" onclick="print()">Print / Save as PDF</button>`+r.tix.map(k=>`<div class="tk"><div class="q" data-q="${k.token}"></div><div><h2>HALLOWEEKEND</h2><b>${esc(r.name)}</b><br>${t.name} · ${r.day?dl(r.day):'Oct 30 – Nov 1'}<br>Ref ${r.ref} · ${k.id}<br>Status: <b class="${k.st=='valid'?'ok':'bad'}">${k.in?'CHECKED IN':k.st.toUpperCase()}</b><br><small>Venue: TBA (sample). Bring this ticket; bag checks apply. Prohibited items are not allowed.</small></div></div>`).join('')}
+function drawQR(){document.querySelectorAll('[data-q]').forEach(e=>{e.innerHTML='';new QRCode(e,{text:e.dataset.q,width:120,height:120})})}
+function lookup(){return `<h1>My Ticket</h1><div class="card"><label for="lr">Registration reference (e.g. HWK-2026-0001)</label><input id="lr"><label for="le">Email used</label><input id="le" type="email"><button onclick="find()">Find my ticket</button></div><div id="lo"></div>`}
+function find(){const r=D.regs.find(x=>x.ref.toLowerCase()==$('#lr').value.trim().toLowerCase()&&x.email.toLowerCase()==$('#le').value.trim().toLowerCase());
+$('#lo').innerHTML=r?`<div class="card">Status: <b>${r.status}</b> · Payment: ${r.pay}<br>Activities: ${r.acts.map(i=>esc(D.acts.find(a=>a.id==i).name)).join(', ')||'none'}</div>`+tickHTML(r):'<p class="err">No match. Check the reference and email.</p>';drawQR()}
+/* ---------- check-in (staff) ---------- */
+let CD=DAYS[0];
+function verify(q){q=q.trim();const r=D.regs.find(r=>r.tix.some(k=>k.token==q.toUpperCase()));if(!r)return{c:'INVALID TICKET',m:'This code is not in the system.',bad:1};
+const k=r.tix.find(k=>k.token==q.toUpperCase());
+if(r.status=='cancelled'||k.st=='cancelled')return{c:'REGISTRATION CANCELLED',m:'This ticket was cancelled. Do not admit.',bad:1,r,k};
+if(!tdays(r).includes(CD))return{c:'WRONG EVENT DATE',m:'Ticket is valid for: '+tdays(r).map(dl).join(', '),bad:1,r,k};
+if(k.in)return{c:'ALREADY CHECKED IN',m:'Checked in at '+new Date(k.in).toLocaleString('en-PH'),bad:1,r,k};
+return{c:'VALID — READY TO CHECK IN',m:'Remember: bag/ID checks still apply.',r,k}}
+function checkin(){if(!role())return admin();
+return `<h1>Check-In</h1><div class="card"><label for="cdate">Event day (demo selector)</label><select id="cdate" onchange="CD=this.value">${DAYS.map(d=>`<option value="${d}" ${CD==d?'selected':''}>${dl(d)}</option>`).join('')}</select>
+<label for="cq">Scan code / ticket token / reference / name / email</label><input id="cq" placeholder="Type or paste scanner output"><button onclick="srch()">Search</button><p class="warn">Camera scanning is not included in this version — use a QR scanner app or type the code.</p></div><div id="co"></div>`}
+function srch(){const q=$('#cq').value.trim().toLowerCase();if(!q)return;const hit=[];D.regs.forEach(r=>r.tix.forEach(k=>{if(k.token.toLowerCase()==q||r.ref.toLowerCase()==q||r.name.toLowerCase().includes(q)||r.email.toLowerCase()==q)hit.push([r,k])}));
+$('#co').innerHTML=hit.length?`<div class="card sc"><table>${hit.map(([r,k])=>`<tr><td>${esc(r.name)}</td><td>${r.ref}</td><td>${k.id}</td><td><button onclick="show('${k.token}')">Verify</button></td></tr>`).join('')}</table></div>`:'<div class="big bad">INVALID TICKET — nothing found.</div>'}
+function show(t){const v=verify(t);$('#co').innerHTML=`<div class="big card" style="border-color:${v.bad?'var(--red)':'#6fdc8c'}">${v.c}<br><small>${v.m}</small>${v.r?`<br><small>${esc(v.r.name)} · ${D.types.find(x=>x.id==v.r.tid).name} · ${v.k.id}</small>`:''}</div>${v.bad?'':`<button onclick="doIn('${t}')">CHECK IN</button>`}`}
+function doIn(t){D=JSON.parse(localStorage.getItem(K));const v=verify(t);if(v.bad)return show(t);v.k.in=new Date().toISOString();save();$('#co').innerHTML=`<div class="big card" style="border-color:#6fdc8c">CHECK-IN SUCCESSFUL<br><small>${esc(v.r.name)} · ${v.k.id}</small></div>`}
+/* ---------- admin ---------- */
+let TAB='dash',Q='';
+const USERS={admin:['admin123','admin'],staff:['staff123','staff']};
+function admin(){if(!role())return `<h1>Staff Login</h1><div class="card"><p class="warn">Demo only — login is client-side and NOT secure. Demo accounts: admin / admin123 (full access), staff / staff123 (check-in only).</p><label for="u">Username</label><input id="u"><label for="pw">Password</label><input id="pw" type="password"><button onclick="login()">Log in</button><div class="err" id="le2"></div></div>`;
+if(role()!='admin')return checkin();
+const live=D.regs.filter(r=>r.status!='cancelled'),tk=live.reduce((a,r)=>a+r.tix.length,0),ci=live.reduce((a,r)=>a+r.tix.filter(k=>k.in).length,0);
+let h=`<h1>Admin</h1><div><button class="${TAB=='dash'?'':'s'}" onclick="TAB='dash';go()">Dashboard</button><button class="${TAB=='regs'?'':'s'}" onclick="TAB='regs';go()">Registrations</button><button class="${TAB=='inv'?'':'s'}" onclick="TAB='inv';go()">Tickets &amp; Settings</button><button class="s" onclick="location.hash='checkin'">Check-in</button><button class="s" onclick="sessionStorage.clear();go()">Logout</button></div>`;
+if(TAB=='dash')h+=`<div class="grid">${[['Registrations',live.length],['Tickets issued',tk],['Checked in',ci],['Not yet in',tk-ci],['Cancelled',D.regs.length-live.length],['Pending payments',live.length]].map(x=>`<div class="card"><small>${x[0]}</small><h2>${x[1]}</h2></div>`).join('')}</div>
+<div class="card"><h3>Check-in progress</h3><div class="bar"><b style="width:${tk?ci/tk*100:0}%"></b></div></div><div class="card"><h3>Tickets by category</h3>${D.types.map(t=>`<p>${t.name}: ${issued(t.id)} / ${t.stock}<div class="bar"><b style="width:${issued(t.id)/t.stock*100}%"></b></div></p>`).join('')}</div>
+<div class="card"><h3>Activity reservations</h3>${D.acts.map(a=>`<p>${esc(a.name)}: ${seats(a.id)} / ${a.cap}<div class="bar"><b style="width:${seats(a.id)/a.cap*100}%"></b></div></p>`).join('')}</div>`;
+if(TAB=='regs'){const rs=D.regs.filter(r=>(r.ref+r.name+r.email).toLowerCase().includes(Q.toLowerCase()));
+h+=`<div class="card"><input id="sq" placeholder="Search ref, name, email" value="${esc(Q)}" oninput="Q=this.value;clearTimeout(window.tt);window.tt=setTimeout(()=>{go();$('#sq').focus()},300)"><button onclick="csv()">Export CSV</button><div class="sc"><table><tr><th>Ref</th><th>Name</th><th>Email</th><th>Ticket</th><th>Qty</th><th>Status</th><th>Payment</th><th>In</th><th></th></tr>${rs.map(r=>`<tr><td>${r.ref}</td><td>${esc(r.name)}</td><td>${esc(r.email)}</td><td>${r.tid}</td><td>${r.tix.length}</td><td>${r.status}</td><td>${esc(r.pay)}</td><td>${r.tix.filter(k=>k.in).length}/${r.tix.length}</td><td>${r.status!='cancelled'?`<button class="d" onclick="cancelReg('${r.ref}')">Cancel</button>`:''}</td></tr>`).join('')}</table></div></div>`}
+if(TAB=='inv')h+=`<div class="card"><h3>Ticket categories</h3><div class="sc"><table><tr><th>Name</th><th>Price ₱</th><th>Stock</th><th>Sold</th></tr>${D.types.map(t=>`<tr><td>${t.name}</td><td><input type="number" value="${t.price}" onchange="edit('${t.id}','price',this.value)"></td><td><input type="number" value="${t.stock}" onchange="edit('${t.id}','stock',this.value)"></td><td>${issued(t.id)}</td></tr>`).join('')}</table></div>
+<div class="chk"><input type="checkbox" id="op" ${D.open?'checked':''} onchange="D.open=this.checked;save()"><label for="op" style="margin:0;color:var(--iv)">Registration open</label></div><label for="ma">Minimum age</label><input id="ma" type="number" value="${D.minAge}" onchange="D.minAge=+this.value;save()">
+<h3>Announcement</h3><input id="at" placeholder="Title"><input id="ad" placeholder="Message"><button onclick="D.ann.unshift({t:$('#at').value,d:$('#ad').value});save();alert('Published')">Publish</button>
+<h3>Danger zone</h3><button class="d" onclick="if(confirm('Reset ALL demo data? This erases every registration.')){D=seed();save();go()}">Reset demo data</button></div>`;
+return h}
+function login(){const u=USERS[$('#u').value.trim().toLowerCase()];if(u&&u[0]==$('#pw').value){sessionStorage.setItem('hwkrole',u[1]);go()}else $('#le2').textContent='Wrong username or password.'}
+function cancelReg(ref){if(role()!='admin')return;if(!confirm('Cancel '+ref+'? Its tickets become invalid and inventory is restored.'))return;const r=D.regs.find(x=>x.ref==ref);r.status='cancelled';r.tix.forEach(k=>k.st='cancelled');save();go()}
+function edit(id,f,v){if(role()!='admin'||!(+v>=0))return;D.types.find(t=>t.id==id)[f]=+v;save();go()}
+function csv(){if(role()!='admin')return;const c=v=>{v=String(v??'');if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
+const rows=[['Ref','Name','Email','Phone','Ticket','Tickets','Date','Status','Payment','Checked in']].concat(D.regs.map(r=>[r.ref,r.name,r.email,r.phone,r.tid,r.tix.length,r.date,r.status,r.pay,r.tix.filter(k=>k.in).length]));
+const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.map(r=>r.map(c).join(',')).join('\n')],{type:'text/csv'}));a.download='registrations.csv';a.click()}
+go();
+</script></body></html>
